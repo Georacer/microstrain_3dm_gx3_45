@@ -38,6 +38,7 @@ class imuNode {
 		int baud_rate_;
 		float declination_;
 		float ant_offset_x_, ant_offset_y_, ant_offset_z_; // Antenna offsets, in meters
+		int dynamics_mode_; // Dynamics mode
 
 		bool started_;
 		bool inited_;

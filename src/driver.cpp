@@ -779,6 +779,38 @@ bool IMU::initKalmanFilter(float decl) {
 
 }
 
+bool IMU::setDynamics(uint8_t mode) {
+
+    tbyte_array data;
+
+    data.push_back(sync1);
+    data.push_back(sync2);
+    data.push_back(CMD_SET_NAVFILTER); // desc set
+    data.push_back(0x04); // payload length
+    data.push_back(0x04); // field length
+    data.push_back(CMD_NAV_DYNAMICS);
+
+    data.push_back(FUN_USE_NEW);
+    data.push_back(mode);
+
+    crc(data);
+    write(data);
+    waitForMsg();
+
+	tbyte_array recv;
+
+	size_t n = 8;
+
+	recv = read(n);
+
+	if (!crcCheck(recv)) return false;
+
+	if (!checkACK(recv,CMD_SET_NAVFILTER,CMD_NAV_DYNAMICS)) return false;
+
+	return true;
+
+}
+
 bool IMU::setAntennaOffset(float x, float y, float z) {
 
     tbyte_array data;

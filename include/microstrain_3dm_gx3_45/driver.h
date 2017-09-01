@@ -186,6 +186,7 @@ namespace microstrain_3dm_gx3_45 {
 	  enum cmd_set_nav {
 
 		  CMD_NAV_SET_INIT_FROM_AHRS = 0x04,
+		  CMD_NAV_DYNAMICS = 0x10,
 		  CMD_NAV_ANTENNA_OFFSET = 0x13
 
 	  };
@@ -201,6 +202,14 @@ namespace microstrain_3dm_gx3_45 {
 		  COMM_MODE_MIP = 0x01,
 		  COMM_MODE_AHRS = 0x02,
 		  COMM_MODE_GPS = 0x03
+
+	  };
+
+	  enum dynamics_modes {
+
+	      DYN_MODE_PORTABLE = 0x01,
+	      DYN_MODE_AUTOMOTIVE = 0x02,
+	      DYN_MODE_AIRBORNE = 0x03
 
 	  };
 
@@ -263,6 +272,7 @@ namespace microstrain_3dm_gx3_45 {
 
       // NAV Filter Commands
       bool initKalmanFilter(float decl);
+      bool setDynamics(uint8_t mode);
       bool setAntennaOffset(float x, float y, float z);
 
 

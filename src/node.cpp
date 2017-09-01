@@ -21,6 +21,7 @@ imuNode::imuNode() : nh_priv_("~") {
 	param::param<float>("~ant_offset_x",ant_offset_x_,0.0); // Read antenna offsets
 	param::param<float>("~ant_offset_y",ant_offset_y_,0.0);
 	param::param<float>("~ant_offset_z",ant_offset_z_,0.0);
+	param::param<int>("~dynamics_mode",dynamics_mode_,1); // Read dynamics mode
 	param::param<string>("~frame_id",frame_id_,"/imu_link");
 	param::param<string>("~child_frame_id",child_frame_id_,"/imu_link");
 	param::param<float>("~rate",rate_,10.0);
@@ -154,6 +155,14 @@ bool imuNode::init() {
 	if (!imu_->setAntennaOffset(ant_offset_x_, ant_offset_y_, ant_offset_z_)) {
 
 		printErrMsgs("Setting antenna offsets");
+		return false;
+
+	}
+
+	ROS_INFO("Setting dynamics mode");
+	if (!imu_->setDynamics(dynamics_mode_)) {
+
+		printErrMsgs("Setting dynamics mode");
 		return false;
 
 	}
