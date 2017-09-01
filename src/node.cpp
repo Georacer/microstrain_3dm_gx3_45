@@ -18,6 +18,9 @@ imuNode::imuNode() : nh_priv_("~") {
 	param::param<string>("~port",port_,"/dev/ttyACM0");
 	param::param<int>("~baud_rate",baud_rate_,115200);
 	param::param<float>("~declination",declination_, 3.8); // http://www.ngdc.noaa.gov/geomag-web/#declination
+	param::param<float>("~ant_offset_x",ant_offset_x_,0.0); // Read antenna offsets
+	param::param<float>("~ant_offset_y",ant_offset_y_,0.0);
+	param::param<float>("~ant_offset_z",ant_offset_z_,0.0);
 	param::param<string>("~frame_id",frame_id_,"/imu_link");
 	param::param<string>("~child_frame_id",child_frame_id_,"/imu_link");
 	param::param<float>("~rate",rate_,10.0);
@@ -143,6 +146,14 @@ bool imuNode::init() {
 	if (!imu_->setNAVMsgFormat()) {
 
 		printErrMsgs("Setting NAV msg format");
+		return false;
+
+	}
+
+	ROS_INFO("Setting antenna offsets");
+	if (!imu_->setAntennaOffset(ant_offset_x_, ant_offset_y_, ant_offset_z_)) {
+
+		printErrMsgs("Setting antenna offsets");
 		return false;
 
 	}

@@ -19,7 +19,6 @@
  *
  * TODOs
  *  fix timeouts
- *	antenna offset (0x0D, 0x13)
  *
  *
  */
@@ -186,7 +185,8 @@ namespace microstrain_3dm_gx3_45 {
 
 	  enum cmd_set_nav {
 
-		  CMD_NAV_SET_INIT_FROM_AHRS = 0x04
+		  CMD_NAV_SET_INIT_FROM_AHRS = 0x04,
+		  CMD_NAV_ANTENNA_OFFSET = 0x13
 
 	  };
 
@@ -263,7 +263,7 @@ namespace microstrain_3dm_gx3_45 {
 
       // NAV Filter Commands
       bool initKalmanFilter(float decl);
-
+      bool setAntennaOffset(float x, float y, float z);
 
 
       tahrs getAHRS();

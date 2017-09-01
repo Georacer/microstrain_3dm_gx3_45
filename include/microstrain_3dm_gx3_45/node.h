@@ -37,6 +37,7 @@ class imuNode {
 		std::string port_;
 		int baud_rate_;
 		float declination_;
+		float ant_offset_x_, ant_offset_y_, ant_offset_z_; // Antenna offsets, in meters
 
 		bool started_;
 		bool inited_;

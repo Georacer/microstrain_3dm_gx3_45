@@ -779,6 +779,41 @@ bool IMU::initKalmanFilter(float decl) {
 
 }
 
+bool IMU::setAntennaOffset(float x, float y, float z) {
+
+    tbyte_array data;
+
+    data.push_back(sync1);
+    data.push_back(sync2);
+    data.push_back(CMD_SET_NAVFILTER); // desc set
+    data.push_back(0x0F); // payload length
+    data.push_back(0x0F); // field length
+    data.push_back(CMD_NAV_ANTENNA_OFFSET);
+
+    data.push_back(FUN_USE_NEW);
+
+    encodeFloat(data, x);
+    encodeFloat(data, y);
+    encodeFloat(data, z);
+
+    crc(data);
+    write(data);
+    waitForMsg();
+
+	tbyte_array recv;
+
+	size_t n = 8;
+
+	recv = read(n);
+
+	if (!crcCheck(recv)) return false;
+
+	if (!checkACK(recv,CMD_SET_NAVFILTER,CMD_NAV_ANTENNA_OFFSET)) return false;
+
+	return true;
+
+}
+
 bool IMU::resume() {
 
 	return sendNoDataCmd(CMD_SET_BASIC, CMD_BASIC_RESUME);
@@ -1085,6 +1120,8 @@ bool IMU::crcCheck(tbyte_array& arr) {
 
 }
 
+// Calculate CRC and append to the end of passed array
+// Calculated according to Data Communications Protocol p.103
 void IMU::crc(tbyte_array& arr) {
 
 	char b1=0;
