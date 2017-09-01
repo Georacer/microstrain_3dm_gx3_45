@@ -240,40 +240,31 @@ namespace microstrain_3dm_gx3_45 {
 
 
       bool isOpen() const;
-
       void closePort();
-
       void setTimeout(const boost::posix_time::time_duration& t);
-
-      bool ping();
-
-      bool selfTest();
-
-      bool devStatus();
-
-      bool disAllStreams();
-
       std::string getLastError();
 
-      bool setAHRSMsgFormat();
-
-      bool setGPSMsgFormat();
-
-      bool setNAVMsgFormat();
-
+      // BASE Commands
+      bool ping();
       bool setToIdle();
-
       bool resume();
+      bool selfTest();
 
+      // 3DM Commands
+      bool pollAHRS();
+      bool pollGPS();
+      bool pollNAV();
+      bool setAHRSMsgFormat();
+      bool setGPSMsgFormat();
+      bool setNAVMsgFormat();
+      bool setStream(uint8_t stream, bool state);
+      bool disAllStreams();
+      bool devStatus();
+
+      // NAV Filter Commands
       bool initKalmanFilter(float decl);
 
-      bool pollAHRS();
 
-      bool pollGPS();
-
-      bool pollNAV();
-
-      bool setStream(uint8_t stream, bool state);
 
       tahrs getAHRS();
       tgps getGPS();
