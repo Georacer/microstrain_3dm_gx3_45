@@ -29,17 +29,19 @@ namespace microstrain_3dm_gx3_45 {
 
 	typedef struct {
 
+		// Linear accelerations
 		float ax;
 		float ay;
 		float az;
 
+		// Angular Velocities
 		float gx;
 		float gy;
 		float gz;
 
-		float r;
-		float p;
-		float y;
+		float r; // Roll Euler angle
+		float p; // Pitch Euler angle
+		float y; // Roll Euler angle
 
 		uint64_t time;
 
@@ -49,16 +51,15 @@ namespace microstrain_3dm_gx3_45 {
 
 		double latitude;
 		double longtitude;
-
-		//double height;
+		double height;
 
 		float horizontal_accuracy;
-		//float vertical_accuracy;
+		float vertical_accuracy;
 
 		bool lat_lon_valid;
+		bool ellipsoid_height_valid;
 		bool hor_acc_valid;
-		//bool height_valid;
-
+		bool vert_acc_valid;
 
 		uint64_t time;
 

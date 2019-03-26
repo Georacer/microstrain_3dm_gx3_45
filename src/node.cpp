@@ -320,7 +320,7 @@ void imuNode::spin() {
 			yaw+=M_PIl;
 			if (yaw > M_PIl) yaw-=2*M_PIl;
 
-			tf::quaternionTFToMsg(tf::createQuaternionFromRPY(-n.est_r, n.est_p, -yaw), nav_pose.pose.orientation);
+			tf::quaternionTFToMsg(tf::createQuaternionFromRPY(-n.est_r, n.est_p, -yaw), nav_pose.pose.orientation); // TODO: Why are negative signs needed?
 
 			nav_pose_pub_.publish(nav_pose);
 
@@ -387,9 +387,9 @@ void imuNode::spin() {
 
             if (n.est_vel_unc_valid) {
 
-				nav_odom.pose.covariance[21] = pow(n.est_east_vel_unc,2);
-				nav_odom.pose.covariance[28] = pow(n.est_north_vel_unc,2);
-				nav_odom.pose.covariance[35] = pow(n.est_down_vel_unc,2);
+				nav_odom.pose.covariance[21] = pow(n.est_r_unc,2);
+				nav_odom.pose.covariance[28] = pow(n.est_p_unc,2);
+				nav_odom.pose.covariance[35] = pow(n.est_y_unc,2);
 
 
             } else {
@@ -410,9 +410,9 @@ void imuNode::spin() {
 
             if (n.est_acc_lin_valid) {
 
-            	nav_odom.twist.covariance[0] = linear_acceleration_covariance;
-            	nav_odom.twist.covariance[7] = linear_acceleration_covariance;
-            	nav_odom.twist.covariance[14] = linear_acceleration_covariance;
+            	nav_odom.twist.covariance[0] = n.est_north_vel_unc;
+            	nav_odom.twist.covariance[7] = n.est_east_vel_unc;
+            	nav_odom.twist.covariance[14] = n.est_down_vel_unc;
             } else {
 
             	nav_odom.twist.covariance[0] = 99999;
@@ -518,7 +518,7 @@ void imuNode::spin() {
 
 			if (gps_fix_available_) {
 
-				if (gps_msg_cnt++==6*rate_) {
+				if (gps_msg_cnt++==6*rate_) { // TODO: What does this check against?
 
 					gps_msg_cnt = 0;
 
@@ -576,7 +576,7 @@ void imuNode::spin() {
 
 			gps.latitude = g.latitude;
 			gps.longitude = g.longtitude;
-			gps.altitude = 0.0;
+			gps.altitude = g.height;
 
 			if (g.lat_lon_valid) gps.status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
 			else gps.status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
@@ -584,12 +584,11 @@ void imuNode::spin() {
 			if (!g.hor_acc_valid) gps.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_UNKNOWN;
 			else {
 
-				//gps.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
-				gps.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_APPROXIMATED;
+				gps.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
 				gps.position_covariance[0] = g.horizontal_accuracy * g.horizontal_accuracy;
 				gps.position_covariance[4] = g.horizontal_accuracy * g.horizontal_accuracy;
-				gps.position_covariance[8] = 100.0; // TODO add this to driver
+				gps.position_covariance[8] = g.vertical_accuracy   * g.vertical_accuracy;
 
 			}
 
@@ -610,7 +609,7 @@ void imuNode::spin() {
 
 				gps_odom.pose.covariance[0] = g.horizontal_accuracy * g.horizontal_accuracy;
 				gps_odom.pose.covariance[7] = g.horizontal_accuracy * g.horizontal_accuracy;
-				gps_odom.pose.covariance[14] = 99999; // TODO check vertical acc.
+				gps_odom.pose.covariance[14] = g.vertical_accuracy   * g.vertical_accuracy;
 
 			} else {
 
@@ -624,7 +623,7 @@ void imuNode::spin() {
 
 		    pt.latitude = g.latitude;
 		    pt.longitude = g.longtitude;
-		    pt.altitude = 0;
+		    pt.altitude = g.height;
 
 		    geodesy::UTMPoint utm;
 
@@ -634,7 +633,7 @@ void imuNode::spin() {
 
 			gps_odom.pose.pose.position.x = utm.easting;
 			gps_odom.pose.pose.position.y = utm.northing;
-			gps_odom.pose.pose.position.z = 0.0; // TODO fill this
+			gps_odom.pose.pose.position.z = utm.altitude;
 
 			gps_odom_pub_.publish(gps_odom);
 

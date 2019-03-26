@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <boost/bind.hpp>
 
 using namespace microstrain_3dm_gx3_45;
@@ -291,12 +292,18 @@ bool IMU::pollGPS() {
 
 	gps_data_.latitude = extractDouble(&recv[4]);
 	gps_data_.longtitude = extractDouble(&recv[4+8]);
+	gps_data_.height = extractDouble(&recv[4+16]);
 	gps_data_.horizontal_accuracy = extractFloat(&recv[4+32]);
+	gps_data_.vertical_accuracy = extractFloat(&recv[4+36]);
 
+	// uint16_t flags = /*((uint16_t)recv[6+40])<<2 | */(uint16_t)recv[4+40];
 	uint16_t flags = /*((uint16_t)recv[6+40])<<2 | */(uint16_t)recv[4+41];
 
 	gps_data_.lat_lon_valid = (flags & 0x1);
-	gps_data_.hor_acc_valid = (flags & (0x1<<5));
+	gps_data_.hor_acc_valid = (flags & (0x1<<4));
+	// gps_data_.ellipsoid_height_valid = (flags & (0x1<<1));
+	// gps_data_.hor_acc_valid = (flags & (0x1<<3));
+	// gps_data_.vert_acc_valid = (flags & (0x1<<4));
 
 	return true;
 }
@@ -682,7 +689,7 @@ bool IMU::setGPSMsgFormat() {
 
 	data.push_back(0x03); // LLH
 	data.push_back(0x0);
-	data.push_back(0x1); // 4 Hz / TODO check this!!!
+	data.push_back(0x1);
 
 	crc(data);
 	write(data);
@@ -878,9 +885,10 @@ bool IMU::sendNoDataCmd(uint8_t cmd_set, uint8_t cmd) {
 	size_t n = 8;
 
 	waitForMsg();
-	//cout << "do some reading..." << endl;
+//    cout << "do some reading..." << endl;
+	usleep(10);
 	recv = read(n);
-	//cout << "we have some data..." << endl;
+//    cout << "we have some data..." << endl;
 
 	if (!crcCheck(recv)) return false;
 
